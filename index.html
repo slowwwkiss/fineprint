@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinePrint — Understand any contract in plain language</title>
+  <meta name="description" content="FinePrint explains contracts and terms in plain language. Short documents are analysed on your device with Gemini Nano; long ones fall back to Gemini in the cloud — one Firebase AI Logic hybrid SDK." />
+  <link rel="stylesheet" href="/src/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">§</span>
+        <div>
+          <h1>FinePrint</h1>
+          <p class="tagline">Contracts in plain language. Private by design.</p>
+        </div>
+      </div>
+      <div class="engine-pills" id="engine-pills">
+        <span class="pill" id="pill-device" title="Gemini Nano, on-device via Chrome Prompt API">On-device: checking…</span>
+        <span class="pill" id="pill-cloud" title="Gemini 2.5 Flash via Firebase AI Logic">Cloud: checking…</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h2>Paste a contract. Get the truth, in plain English.</h2>
+      <p>
+        FinePrint reads contracts, terms of service and leases, and explains them
+        like a friend would — what you are agreeing to, what could hurt you,
+        and what you have to do. <strong>Short documents never leave your device:</strong>
+        they are analysed on-device by Gemini Nano. Long documents fall back to
+        Gemini in the cloud. One SDK — Firebase AI Logic hybrid inference —
+        decides, and every answer tells you which engine wrote it.
+      </p>
+      <div class="how">
+        <div class="how-step"><span class="how-n">1</span><strong>Paste or upload</strong><span>a contract, ToS or lease</span></div>
+        <div class="how-step"><span class="how-n">2</span><strong>It routes itself</strong><span>short → on-device Nano · long → cloud Gemini</span></div>
+        <div class="how-step"><span class="how-n">3</span><strong>Read the verdict</strong><span>summary, red flags, obligations, key facts</span></div>
+      </div>
+    </section>
+
+    <section class="card" id="analyser">
+      <div class="card-head">
+        <h3>Analyse a document</h3>
+        <span class="muted" id="char-count">0 characters</span>
+      </div>
+
+      <label class="field-label" for="doc-input">Document text</label>
+      <textarea id="doc-input" rows="10" placeholder="Paste a contract, terms of service, lease, or privacy policy here…"></textarea>
+
+      <div class="row">
+        <div class="samples">
+          <span class="muted">Try one:</span>
+          <span id="sample-buttons"></span>
+        </div>
+        <label class="file-btn">Upload .txt / .md
+          <input type="file" id="file-input" accept=".txt,.md,text/plain" hidden />
+        </label>
+      </div>
+
+      <div class="route-preview" id="route-preview">
+        <span class="route-dot" aria-hidden="true"></span>
+        <span id="route-text">Paste a document to see where it will be analysed.</span>
+      </div>
+
+      <div class="options">
+        <label class="check">
+          <input type="checkbox" id="stay-device" />
+          <span>Stay on this device — never send this document to any server (on-device only)</span>
+        </label>
+        <button class="btn btn-ghost" id="download-model" type="button">Download on-device model</button>
+        <span class="muted small" id="download-status"></span>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="analyse-btn" type="button">Explain this document</button>
+        <span class="muted small">Free. No account. Your document is analysed, not stored — except in your own history below.</span>
+      </div>
+      <p class="error" id="analyse-error" role="alert" hidden></p>
+      <div class="progress" id="analyse-progress" hidden>
+        <div class="progress-bar" id="analyse-progress-bar"></div>
+        <span id="analyse-progress-text">Working…</span>
+      </div>
+    </section>
+
+    <section class="card" id="results" hidden>
+      <div class="card-head">
+        <h3>Your plain-language verdict</h3>
+        <span class="badge" id="result-badge">—</span>
+      </div>
+      <p class="route-line" id="result-route"></p>
+
+      <h4>Summary</h4>
+      <ul class="summary" id="result-summary"></ul>
+
+      <h4>Red flags <span class="muted small" id="flags-count"></span></h4>
+      <div id="result-flags"></div>
+
+      <h4>Your obligations</h4>
+      <ul class="obligations" id="result-obligations"></ul>
+
+      <h4>Key facts</h4>
+      <dl class="facts" id="result-facts"></dl>
+
+      <div class="qa">
+        <h4>Ask about this document</h4>
+        <p class="muted small">Answers come only from the document itself. If it is not in the text, the answer says so.</p>
+        <div class="row">
+          <input type="text" id="qa-input" placeholder="e.g. Can the landlord raise my rent?" />
+          <button class="btn" id="qa-btn" type="button">Ask</button>
+        </div>
+        <p class="error" id="qa-error" role="alert" hidden></p>
+        <div class="qa-answer" id="qa-answer" hidden></div>
+      </div>
+
+      <div class="compare" id="compare-box">
+        <h4>Compare with a new version <span class="badge badge-cloud">cloud</span></h4>
+        <p class="muted small">Paste the new version of this same document to see what changed, and whether it got better or worse for you.</p>
+        <textarea id="compare-input" rows="5" placeholder="Paste the new version here…"></textarea>
+        <div class="actions">
+          <button class="btn" id="compare-btn" type="button">Compare versions</button>
+        </div>
+        <p class="error" id="compare-error" role="alert" hidden></p>
+        <div id="compare-result" hidden></div>
+      </div>
+    </section>
+
+    <section class="card" id="history-card">
+      <div class="card-head">
+        <h3>Your history</h3>
+        <span class="muted small" id="history-backend"></span>
+      </div>
+      <p class="muted small">Saved on this device, under an anonymous account. Nothing you paste is sent anywhere except to the AI engine that analyses it.</p>
+      <ul class="history" id="history-list"></ul>
+    </section>
+
+    <section class="card" id="how-it-works">
+      <h3>How the hybrid engine works</h3>
+      <p>
+        FinePrint uses <strong>Firebase AI Logic</strong> with one hybrid model
+        (<code>InferenceMode.PREFER_ON_DEVICE</code>). The SDK checks for a local
+        model first: on Chrome desktop that is <strong>Gemini Nano</strong> through the
+        Prompt API. If no local model is available, the same call falls back to
+        <strong>Gemini 2.5 Flash</strong> in the cloud. Long documents are chunked and
+        analysed in the cloud, because they do not fit the on-device model.
+        Every answer carries its <code>inferenceSource</code> — the badge above
+        each verdict is read from the response itself, not guessed.
+      </p>
+      <ul class="stack">
+        <li><strong>Firebase AI Logic</strong> — hybrid inference (Gemini Nano ↔ Gemini 2.5 Flash)</li>
+        <li><strong>App Check</strong> — protects cloud calls (reCAPTCHA v3; debug token in development)</li>
+        <li><strong>Authentication</strong> — anonymous sign-in, no account needed</li>
+        <li><strong>Firestore</strong> — your analysis history, per anonymous user</li>
+        <li><strong>Remote Config</strong> — routing thresholds, tunable without a redeploy</li>
+      </ul>
+      <p class="muted small" id="thresholds-line"></p>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p>FinePrint — built for #BuildHybridAI 2026 with Firebase AI Logic. Source code: see the repository linked in the submission. This app analyses the text you paste; it is not legal advice.</p>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
